@@ -1,0 +1,48 @@
+web:
+    image: 'nginx-d9'
+#     restart: always
+    command: '/cmd/start-web.sh'
+    links:
+        - 'php'
+    ports:
+        - '80:80'
+    volumes:
+        - './app/basic:/var/www/basic'
+        - './cfg/nginx/sites-available:/etc/nginx/sites-available'
+        - './cmd:/cmd'
+
+php:
+    image: 'php7-d9'
+#     restart: always
+    command: '/cmd/start-php.sh'
+    expose:
+        - '9000'
+    links:
+        - 'db'
+    volumes:
+        - './app/basic:/var/www/basic'
+        - './cfg/php7-fpm/pool.d:/etc/php/7.0/fpm/pool.d'
+        - './cmd:/cmd'
+        
+db:
+    image: 'mysql-d9'
+#     restart: always
+    command: '/cmd/start-db.sh'
+    expose:
+        - '3306'
+    volumes:
+        - './cfg/mysql/mariadb.conf.d/50-server.cnf:/etc/mysql/mariadb.conf.d/50-server.cnf'
+        - './cmd:/cmd'
+        - './db:/var/lib/mysql'
+
+dev:
+    image: 'dev-laravel-php7-d9'
+#     restart: always
+    command: '/cmd/start-dev.sh'
+    links:
+        - 'db'
+    volumes:
+        - './app/basic:/app'
+        - './cmd:/cmd'
+    working_dir: /app
+
